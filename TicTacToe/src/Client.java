@@ -1,22 +1,65 @@
 import controllers.GameController;
 import exceptions.DuplicateSymbolException;
+import exceptions.MoreThanOneBotException;
 import exceptions.PlayersCountDimensionMismatchException;
-import modles.Game;
-import modles.GameState;
+import modles.*;
+import strategies.ColWinningStrategy;
+import strategies.DiagWinningStrategy;
+import strategies.RowWinningStrategy;
+import strategies.WinningStrategy;
 
 import java.util.ArrayList;
-
-import static modles.GameState.IN_PROGRESS;
+import java.util.List;
+import java.util.Scanner;
 
 public class Client {
-    public static void main(String[] args) throws DuplicateSymbolException, PlayersCountDimensionMismatchException {
-        GameController  gameController=new GameController();
-        Game game=gameController.startGame(3,new ArrayList<>(),new ArrayList<>());
+    public static void main(String[] args){
+        GameController gameController = new GameController();
+        Scanner scanner = new Scanner(System.in);
 
-        while(gameController.checkState(game).equals((GameState).IN_PROGRESS)){
+        int dimensions = 3;
+        List<Player> players = new ArrayList<>();
+        players.add(
+                new Player(1L, "Sabahul", new Symbol('X'), PlayerType.HUMAN)
+        );
+        players.add(
+                new Bot(2L, "Vignesh", new Symbol('O'), BotDifficultyLevel.EASY)
+        );
+        List<WinningStrategy> winningStrategies =List.of(
+                new RowWinningStrategy(),
+                new ColWinningStrategy(),
+                new DiagWinningStrategy()
+        );
+
+        Game game=null;
+        try{
+        game=gameController.startGame(dimensions,players,winningStrategies);
+        while(gameController.checkState(game).equals(GameState.IN_PROGRESS)){
             gameController.printBoard(game);
-            gameController.makeMove();
+            System.out.println("Do you want to undo? (y/n");
+            String undoAnswer=scanner.next();
+            if(undoAnswer.equalsIgnoreCase("y")){
+                gameController.undo(game);
+                continue;
+            }
+            gameController.makeMove(game);
+        }
+         }catch(Exception ex){
+            System.out.println("Something went wrong");
         }
 
+
+        gameController.printBoard(game);
+        System.out.println("Game is over");
+
+        GameState gameState=gameController.checkState(game);
+
+        if(gameState.equals(GameState.DRAW)){
+            System.out.println("Game has drawn");
+
+        }else {
+            System.out.println(gameController.getWinner(game)+" is the winner");
+        }
     }
+
 }

@@ -1,4 +1,8 @@
 package strategies;
 
-public class BotPlayingStrategy {
+import modles.Board;
+import modles.Move;
+
+public interface BotPlayingStrategy {
+    Move makeMove(Board board);
 }

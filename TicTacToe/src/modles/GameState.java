@@ -2,6 +2,6 @@ package modles;
 
 public enum GameState {
     IN_PROGRESS,
-    WIN,
+    WINNER,
     DRAW
 }
